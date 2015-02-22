@@ -26,26 +26,26 @@ logger = logging.getLogger('django.request')
 logger.info('Using %s JSON module.', json.__name__)
 
 
-def _get_encoder():
+def _get_serializer():
     full_path = getattr(settings, 'JSON_USE_CUSTOM_SERIALIZER', None)
     if full_path:
         parts = full_path.split('.')
         cls = parts[-1]
         path = '.'.join(parts[:-1])
         mod = import_module(path)
-        serializer = getattr(mod, cls)
-        logger.info('Using %s as JSON serializer', serializer.__name__)
-        return serializer
+        slzr = getattr(mod, cls)
+        logger.info('Using %s as JSON serializer', slzr.__name__)
+        return slzr
     elif getattr(settings, 'JSON_USE_DJANGO_SERIALIZER', True):
         return DjangoJSONEncoder
     return None
 
 
-encoder = _get_encoder()
+serializer = _get_serializer()
 
 
 def _dump_json(data):
-    return json.dumps(data, cls=encoder)
+    return json.dumps(data, cls=serializer)
 
 def json_view(*args, **kwargs):
     """Ensure the response content is well-formed JSON.
